@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Terraform autocomplete, Docker, AWS Toolkit, Git Graph — the VS Code extensions that actually save time in multi-cloud workflows." />
+  <title>Must-Use VS Code Extensions for Cloud Engineers — SoleTechie</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23080b0f'/><text y='24' x='4' font-size='22' font-family='monospace' fill='%2300ff88'>S</text></svg>" />
+  <link rel="stylesheet" href="../css/main.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <a href="../index.html" class="nav-logo">sole<span class="accent">.</span>techie</a>
+  <ul class="nav-links">
+    <li><a href="../blog/index.html">Blog</a></li>
+    <li><a href="../index.html#projects">Projects</a></li>
+    <li><a href="../index.html#certs">Certs</a></li>
+    <li><a href="../index.html#about">About</a></li>
+  </ul>
+  <div class="nav-badge">
+    <span class="nav-badge-dot"></span>
+    <span>actively posting</span>
+  </div>
+</nav>
+
+<div class="page-body">
+  <div class="container">
+    <article class="post-layout">
+
+      <header class="post-header">
+        <div class="post-meta">
+          <span class="post-date">December 17, 2021</span>
+          <span class="post-tag tag-tool">Tooling</span>
+          <span style="font-size:.67rem; color:var(--text-dim);">4 min read</span>
+        </div>
+        <h1>Must-Use VS Code Extensions for Cloud Engineers</h1>
+      </header>
+
+      <div class="post-content">
+
+        <p>A good IDE setup is a force multiplier. These are the extensions I have installed across every machine I work on — focused on cloud engineering, IaC, and multi-cloud workflows. No bloat, no "nice to have" picks that you open once and forget.</p>
+
+        <h2>HashiCorp Terraform</h2>
+
+        <p><strong>Extension ID:</strong> <code>hashicorp.terraform</code></p>
+
+        <p>The official Terraform extension gives you syntax highlighting, inline validation, and — most valuably — autocomplete for resource arguments and provider schemas. It pulls the schema directly from your installed providers, so it knows exactly which arguments are valid for each resource version you're using.</p>
+
+        <p>The go-to-definition support is underrated: hover over a module source or data reference and jump directly to the definition. Saves a lot of file-searching in large codebases.</p>
+
+        <h2>AWS Toolkit</h2>
+
+        <p><strong>Extension ID:</strong> <code>amazonwebservices.aws-toolkit-vscode</code></p>
+
+        <p>Browse S3 buckets, invoke Lambda functions, view CloudWatch logs, and manage Step Functions state machines — without leaving the editor. The CloudWatch Logs integration is the feature I use most: tail log groups in a VS Code terminal panel instead of context-switching to the console.</p>
+
+        <p>Also useful: the CodeWhisperer integration for AWS-specific code suggestions and the SAM debugger for local Lambda execution.</p>
+
+        <h2>Docker</h2>
+
+        <p><strong>Extension ID:</strong> <code>ms-azuretools.vscode-docker</code></p>
+
+        <p>Dockerfile syntax support, container management sidebar, and one-click attach to running containers. The image explorer is handy for quickly checking layer sizes before pushing. If you're running local containers for development or testing, this removes most of the <code>docker ps</code> / <code>docker logs</code> / <code>docker exec</code> friction.</p>
+
+        <h2>Git Graph</h2>
+
+        <p><strong>Extension ID:</strong> <code>mhutchie.git-graph</code></p>
+
+        <p>A visual git log that actually looks good. Branching history, cherry-pick from the graph, compare commits side-by-side. In repositories with multiple active branches — which is every infra repo I've worked in — this is dramatically clearer than <code>git log --oneline --graph</code>. Right-click on any commit for checkout, revert, or tag operations.</p>
+
+        <h2>YAML</h2>
+
+        <p><strong>Extension ID:</strong> <code>redhat.vscode-yaml</code></p>
+
+        <p>Essential for anyone writing Kubernetes manifests, GitHub Actions, GitLab CI, CloudFormation, or Airflow DAG configs. Provides schema-aware validation and autocomplete when schemas are available (Kubernetes schemas work out of the box). Catches indentation errors before they cause a 2am pipeline failure.</p>
+
+        <h2>Remote — SSH</h2>
+
+        <p><strong>Extension ID:</strong> <code>ms-vscode-remote.remote-ssh</code></p>
+
+        <p>Open a remote project over SSH as if it were local — full editor features, terminal, and extensions running on the remote host. Essential for working on jump boxes, EC2 instances, or any remote dev environment. Pairs well with AWS Session Manager for zero-open-port SSH access to private instances.</p>
+
+        <h2>Better Comments</h2>
+
+        <p><strong>Extension ID:</strong> <code>aaron-bond.better-comments</code></p>
+
+        <p>Color-codes comments by type: <code>!</code> for alerts, <code>?</code> for questions, <code>TODO</code> for todos, <code>*</code> for highlights. Sounds minor, but it makes infrastructure code significantly more scannable — especially in Terraform where important caveats and TODOs are scattered through long resource blocks.</p>
+
+        <h2>A note on what's not here</h2>
+
+        <p>I deliberately left off extensions that duplicate terminal workflows (you should know your CLI), language servers for every language you might touch occasionally, and anything that requires a paid subscription to be useful. The goal is a setup that's fast, focused, and works the same across machines.</p>
+
+        <h2>Wrapping up</h2>
+
+        <p>Seven extensions. That's the list. A lean setup loads faster, has fewer conflicts, and forces you to actually learn your tools instead of relying on IDE scaffolding for every operation. Install these, learn the keyboard shortcuts for the ones you use most, and you'll cover 90% of cloud engineering workflows without bloat.</p>
+
+      </div>
+
+      <div style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; font-size:0.75rem;">
+        <a href="../blog/index.html" style="color:var(--text-dim);">← All posts</a>
+        <a href="getting-started-aws.html" style="color:var(--green);">Getting Started with AWS →</a>
+      </div>
+
+    </article>
+  </div>
+</div>
+
+<footer>
+  <div class="footer">
+    <span class="footer-logo">sole<span class="accent">.</span>techie</span>
+    <span class="footer-copy">ETL · Big Data · Cloud</span>
+    <span>© 2025</span>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

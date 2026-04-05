@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Scoping modules with encapsulation, privilege boundaries, and volatility. Building reusable 80% MVPs without over-engineering edge cases." />
+  <title>Enterprise Patterns in Terraform — SoleTechie</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23080b0f'/><text y='24' x='4' font-size='22' font-family='monospace' fill='%2300ff88'>S</text></svg>" />
+  <link rel="stylesheet" href="../css/main.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <a href="../index.html" class="nav-logo">sole<span class="accent">.</span>techie</a>
+  <ul class="nav-links">
+    <li><a href="../blog/index.html">Blog</a></li>
+    <li><a href="../index.html#projects">Projects</a></li>
+    <li><a href="../index.html#certs">Certs</a></li>
+    <li><a href="../index.html#about">About</a></li>
+  </ul>
+  <div class="nav-badge">
+    <span class="nav-badge-dot"></span>
+    <span>actively posting</span>
+  </div>
+</nav>
+
+<div class="page-body">
+  <div class="container">
+    <article class="post-layout">
+
+      <header class="post-header">
+        <div class="post-meta">
+          <span class="post-date">January 06, 2021</span>
+          <span class="post-tag tag-iac">IaC</span>
+          <span style="font-size:.67rem; color:var(--text-dim);">7 min read</span>
+        </div>
+        <h1>Enterprise Patterns in Terraform</h1>
+      </header>
+
+      <div class="post-content">
+
+        <p>Most Terraform tutorials show you how to write a module. Almost none explain how to scope one. In enterprise environments — multi-team, multi-account, regulated industries — the way you divide infrastructure into modules is an architectural decision with real consequences for security, velocity, and maintenance burden. Here's the framework I use.</p>
+
+        <h2>The three scoping dimensions</h2>
+
+        <p>When deciding what goes into a module and what stays outside it, I evaluate three things:</p>
+
+        <ol>
+          <li><strong>Encapsulation</strong> — does this represent a cohesive unit that makes sense to manage as a whole?</li>
+          <li><strong>Privilege boundary</strong> — does this resource require different IAM permissions than the surrounding infrastructure?</li>
+          <li><strong>Volatility</strong> — how often does this change? Resources that change together should be grouped together.</li>
+        </ol>
+
+        <p>A module that fails any of these tests is probably scoped wrong. Networking resources (VPC, subnets, route tables) are a classic example of a natural module: they're cohesive, require specific permissions, and change on a completely different cadence from application resources.</p>
+
+        <h2>The 80% MVP rule</h2>
+
+        <p>Enterprise modules get over-engineered constantly. Engineers try to handle every possible edge case upfront — optional load balancers, switchable database engines, conditional monitoring — and end up with 40-variable modules that nobody can understand or maintain.</p>
+
+        <p>The better approach: build for the 80% use case first. A module that solves the common case cleanly, with a well-documented interface, delivers more value than a hyper-flexible module that requires expert knowledge to invoke correctly.</p>
+
+        <pre><code># Good: opinionated module with sensible defaults
+module "rds_postgres" {
+  source = "./modules/rds-postgres"
+
+  identifier  = "app-db"
+  environment = "prod"
+  vpc_id      = module.networking.vpc_id
+  subnet_ids  = module.networking.private_subnet_ids
+
+  # Sensible defaults baked in:
+  # - Multi-AZ enabled in prod
+  # - Encryption at rest
+  # - Automated backups (7-day retention)
+  # - Parameter group tuned for OLTP
+}</code></pre>
+
+        <h2>Privilege boundaries as module boundaries</h2>
+
+        <p>In regulated industries (healthcare, fintech, banking), IAM privilege separation isn't optional. The pattern I use: separate modules for separate blast radii.</p>
+
+        <ul>
+          <li><strong>Foundation module</strong> — VPC, subnets, route tables, NACLs. Deployed by network team, read-only for everyone else.</li>
+          <li><strong>IAM module</strong> — roles, policies, permission boundaries. Deployed by security team. Never bundled with application resources.</li>
+          <li><strong>Data module</strong> — RDS, S3, KMS keys, DynamoDB. Deployed with data-plane permissions.</li>
+          <li><strong>Application module</strong> — ECS, Lambda, ALB, security groups. Deployed by application teams with constrained permissions.</li>
+        </ul>
+
+        <p>This separation means a compromised application CI/CD pipeline can't touch networking or IAM resources. Each module is deployable independently with minimal permissions.</p>
+
+        <h2>Module versioning</h2>
+
+        <p>In a monorepo with multiple teams, unversioned modules create chaos. A change to a shared module can break every consumer simultaneously. The fix: version your modules and pin consumers to explicit versions.</p>
+
+        <pre><code>module "networking" {
+  source  = "git::https://gitlab.internal/infra/modules.git//networking?ref=v2.3.1"
+  # ...
+}
+
+module "rds_postgres" {
+  source  = "git::https://gitlab.internal/infra/modules.git//rds-postgres?ref=v1.8.0"
+  # ...
+}</code></pre>
+
+        <p>Teams can upgrade at their own pace. Breaking changes get a major version bump. The module maintainer publishes a changelog. This is boring infrastructure engineering — and that's exactly what you want.</p>
+
+        <h2>Variable design</h2>
+
+        <p>Module interfaces deserve as much care as API design. A few rules:</p>
+
+        <ul>
+          <li>Required variables should represent the minimal set of inputs that genuinely vary per invocation. If every consumer passes the same value, it should be a default or a local.</li>
+          <li>Use <code>validation</code> blocks for inputs that have constraints — it gives callers an immediate, readable error instead of a cryptic provider error ten steps into apply.</li>
+          <li>Group related optional inputs into an object variable rather than proliferating top-level variables.</li>
+        </ul>
+
+        <pre><code>variable "scaling" {
+  description = "Auto-scaling configuration"
+  type = object({
+    min_size         = number
+    max_size         = number
+    target_cpu_pct   = optional(number, 70)
+  })
+  default = {
+    min_size = 1
+    max_size = 4
+  }
+}
+
+variable "environment" {
+  type = string
+  validation {
+    condition     = contains(["dev", "staging", "prod"], var.environment)
+    error_message = "environment must be dev, staging, or prod."
+  }
+}</code></pre>
+
+        <h2>Output discipline</h2>
+
+        <p>Outputs are how modules communicate with each other. Be deliberate: export everything a consumer might need (IDs, ARNs, DNS names, security group IDs), but don't leak implementation details. A module that outputs its internal resource counts or intermediate computed values is a module with leaky abstraction.</p>
+
+        <h2>Wrapping up</h2>
+
+        <p>Enterprise Terraform is mostly about discipline, not cleverness. Scope modules around natural encapsulation and privilege boundaries. Build for the 80% case and document the rest. Version everything. Design interfaces with the caller in mind. These patterns don't make headlines, but they're what makes IaC maintainable across teams and years of infrastructure evolution.</p>
+
+      </div>
+
+      <div style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; font-size:0.75rem;">
+        <a href="../blog/index.html" style="color:var(--text-dim);">← All posts</a>
+        <span style="color:var(--text-dim);">— oldest post —</span>
+      </div>
+
+    </article>
+  </div>
+</div>
+
+<footer>
+  <div class="footer">
+    <span class="footer-logo">sole<span class="accent">.</span>techie</span>
+    <span class="footer-copy">ETL · Big Data · Cloud</span>
+    <span>© 2025</span>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

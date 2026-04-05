@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Building the full CTR analytics pipeline — Kinesis Data Stream → Firehose → S3 → Athena → QuickSight. Partition strategies and Lambda transforms." />
+  <title>AWS Connect: Reporting & Visualizations — SoleTechie</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23080b0f'/><text y='24' x='4' font-size='22' font-family='monospace' fill='%2300ff88'>S</text></svg>" />
+  <link rel="stylesheet" href="../css/main.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <a href="../index.html" class="nav-logo">sole<span class="accent">.</span>techie</a>
+  <ul class="nav-links">
+    <li><a href="../blog/index.html">Blog</a></li>
+    <li><a href="../index.html#projects">Projects</a></li>
+    <li><a href="../index.html#certs">Certs</a></li>
+    <li><a href="../index.html#about">About</a></li>
+  </ul>
+  <div class="nav-badge">
+    <span class="nav-badge-dot"></span>
+    <span>actively posting</span>
+  </div>
+</nav>
+
+<div class="page-body">
+  <div class="container">
+    <article class="post-layout">
+
+      <header class="post-header">
+        <div class="post-meta">
+          <span class="post-date">August 09, 2023</span>
+          <span class="post-tag tag-aws">AWS</span>
+          <span style="font-size:.67rem; color:var(--text-dim);">6 min read</span>
+        </div>
+        <h1>AWS Connect: Reporting & Visualizations</h1>
+      </header>
+
+      <div class="post-content">
+
+        <p>Amazon Connect is a cloud-based contact center platform — but out of the box its reporting capabilities are limited. If you want real analytics — agent performance, queue trends, SLA tracking — you need to build the pipeline yourself. Here's the full CTR (Contact Trace Record) analytics stack I use in production.</p>
+
+        <h2>The architecture</h2>
+
+        <p>The pipeline follows a standard AWS streaming pattern:</p>
+
+        <ol>
+          <li><strong>Amazon Connect → Kinesis Data Stream</strong> — Connect natively streams CTRs to a Kinesis stream as each contact ends.</li>
+          <li><strong>Kinesis Data Stream → Kinesis Data Firehose</strong> — Firehose buffers and delivers to S3, with optional Lambda transform in the middle.</li>
+          <li><strong>S3</strong> — Raw and transformed CTR data lands here, partitioned by date.</li>
+          <li><strong>AWS Glue + Athena</strong> — Glue crawlers catalog the data; Athena queries it with standard SQL.</li>
+          <li><strong>Amazon QuickSight</strong> — Dashboards and visualizations on top of Athena.</li>
+        </ol>
+
+        <h2>Enabling CTR streaming in Connect</h2>
+
+        <p>First, create a Kinesis Data Stream, then enable data streaming in the Connect instance settings. Under <strong>Data streaming → Contact Trace Records</strong>, select your Kinesis stream. That's it — every completed contact will now push a CTR event.</p>
+
+        <pre><code># Create the Kinesis stream
+aws kinesis create-stream \
+  --stream-name connect-ctr-stream \
+  --shard-count 2</code></pre>
+
+        <h2>Firehose delivery with Lambda transform</h2>
+
+        <p>The raw CTR JSON from Connect is fairly verbose. Before it hits S3, I run a Lambda transform in Firehose to flatten the structure and drop fields I don't need. This keeps the S3 footprint manageable and makes Athena queries faster.</p>
+
+        <pre><code># Key CTR fields worth keeping
+{
+  "ContactId": "...",
+  "InitiationTimestamp": "...",
+  "DisconnectTimestamp": "...",
+  "Queue": { "Name": "...", "Duration": ... },
+  "Agent": { "Username": "...", "AfterContactWorkDuration": ... },
+  "Channel": "VOICE",
+  "InitiationMethod": "INBOUND"
+}</code></pre>
+
+        <p>The Lambda transform receives a batch of records, processes each one, and returns them with a <code>result</code> field of <code>Ok</code>, <code>Dropped</code>, or <code>ProcessingFailed</code>. Keep your transform fast — Firehose has a 3-minute timeout per batch.</p>
+
+        <h2>S3 partition strategy</h2>
+
+        <p>Partition by year/month/day. Firehose supports dynamic partitioning with a prefix expression:</p>
+
+        <pre><code>Prefix: ctr-data/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/
+ErrorOutputPrefix: ctr-errors/!{firehose:error-output-type}/</code></pre>
+
+        <p>This gives you Hive-compatible partitions that Glue can catalog automatically and Athena can prune efficiently on date-range queries.</p>
+
+        <h2>Glue crawler and Athena</h2>
+
+        <p>Set up a Glue crawler pointing at your S3 prefix. Run it daily (or on-demand after large ingestion windows). Once cataloged, Athena queries are straightforward:</p>
+
+        <pre><code>-- Average handle time by queue, last 7 days
+SELECT
+  queue_name,
+  AVG(agent_interaction_duration) AS avg_handle_time_sec,
+  COUNT(*) AS contact_count
+FROM connect_ctr_db.ctr_data
+WHERE year = '2023' AND month = '08'
+GROUP BY queue_name
+ORDER BY contact_count DESC;</code></pre>
+
+        <h2>QuickSight dashboards</h2>
+
+        <p>Connect QuickSight to Athena as the data source. The most useful dashboards I've built:</p>
+
+        <ul>
+          <li><strong>Queue performance</strong> — contacts handled, abandoned rate, average wait time by queue and hour-of-day</li>
+          <li><strong>Agent metrics</strong> — handle time, after-contact work, occupancy rate by agent</li>
+          <li><strong>SLA tracking</strong> — % of contacts answered within target threshold (typically 20 or 30 seconds)</li>
+          <li><strong>Daily trend</strong> — volume over rolling 30 days to spot seasonality</li>
+        </ul>
+
+        <h2>Watch-outs</h2>
+
+        <p>A few things that will bite you if you skip them:</p>
+
+        <ul>
+          <li>CTR data only appears after the contact is <strong>fully closed</strong> — including after-contact work. Don't expect real-time data; there's inherent lag.</li>
+          <li>Shard count matters. One shard handles ~1,000 records/sec. Size your stream for peak contact volume plus headroom.</li>
+          <li>Firehose buffer size and interval interact — smaller buffers mean more frequent (and smaller) S3 files, which hurts Athena performance. Buffer at least 5 minutes or 64 MB.</li>
+          <li>QuickSight SPICE has a data refresh limit. For near-real-time dashboards, use direct query mode instead.</li>
+        </ul>
+
+        <h2>Wrapping up</h2>
+
+        <p>This pipeline gives you a complete analytics layer over Amazon Connect that the native reporting can't match. The Kinesis → Firehose → S3 → Athena path is battle-tested, and QuickSight on top of Athena is fast enough for operational dashboards. The main investment is the Lambda transform and the Athena schema design — get those right and everything downstream is easy.</p>
+
+      </div>
+
+      <div style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; font-size:0.75rem;">
+        <a href="../blog/index.html" style="color:var(--text-dim);">← All posts</a>
+        <a href="gitlab-cicd-setup.html" style="color:var(--green);">Setting Up GitLab + CI/CD →</a>
+      </div>
+
+    </article>
+  </div>
+</div>
+
+<footer>
+  <div class="footer">
+    <span class="footer-logo">sole<span class="accent">.</span>techie</span>
+    <span class="footer-copy">ETL · Big Data · Cloud</span>
+    <span>© 2025</span>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

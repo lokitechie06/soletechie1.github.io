@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Bootstrapping a private GitLab group, configuring runners, and wiring Terraform infrastructure deployments into a real CI/CD flow from scratch." />
+  <title>Setting Up GitLab + CI/CD with Terraform — SoleTechie</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23080b0f'/><text y='24' x='4' font-size='22' font-family='monospace' fill='%2300ff88'>S</text></svg>" />
+  <link rel="stylesheet" href="../css/main.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <a href="../index.html" class="nav-logo">sole<span class="accent">.</span>techie</a>
+  <ul class="nav-links">
+    <li><a href="../blog/index.html">Blog</a></li>
+    <li><a href="../index.html#projects">Projects</a></li>
+    <li><a href="../index.html#certs">Certs</a></li>
+    <li><a href="../index.html#about">About</a></li>
+  </ul>
+  <div class="nav-badge">
+    <span class="nav-badge-dot"></span>
+    <span>actively posting</span>
+  </div>
+</nav>
+
+<div class="page-body">
+  <div class="container">
+    <article class="post-layout">
+
+      <header class="post-header">
+        <div class="post-meta">
+          <span class="post-date">May 05, 2022</span>
+          <span class="post-tag tag-devops">DevOps</span>
+          <span style="font-size:.67rem; color:var(--text-dim);">5 min read</span>
+        </div>
+        <h1>Setting Up GitLab + CI/CD with Terraform</h1>
+      </header>
+
+      <div class="post-content">
+
+        <p>GitLab's built-in CI/CD is one of the most complete pipelines-as-code systems available — and it integrates cleanly with Terraform for infrastructure deployments. This post walks through bootstrapping a private GitLab group, registering runners, and setting up a full Terraform CI/CD pipeline from scratch.</p>
+
+        <h2>GitLab group and project structure</h2>
+
+        <p>Start with a group to organize related repositories under shared CI/CD variables and runners. In GitLab, groups are the right scope for enterprise settings — you define runners, variables, and access controls once at the group level rather than per-project.</p>
+
+        <pre><code># Recommended structure for an infrastructure group
+infra-group/
+  ├── terraform-modules/   # shared module library
+  ├── networking/          # VPC, subnets, DNS
+  ├── platform/            # ECS, RDS, core services
+  └── apps/                # application-layer infra</code></pre>
+
+        <p>Add group-level CI/CD variables (Settings → CI/CD → Variables) for shared secrets: AWS credentials, Terraform backend config, Vault tokens. These inherit to all projects in the group so you don't repeat them.</p>
+
+        <h2>Registering a GitLab Runner</h2>
+
+        <p>For infrastructure pipelines touching AWS, I prefer self-hosted runners over GitLab's shared runners. They run inside your VPC, can use instance profiles instead of long-lived credentials, and aren't subject to shared runner resource limits.</p>
+
+        <pre><code># Install on an EC2 instance (Amazon Linux 2)
+curl -L "https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh" | sudo bash
+sudo yum install gitlab-runner -y
+
+# Register the runner
+sudo gitlab-runner register \
+  --url "https://gitlab.com/" \
+  --registration-token "YOUR_GROUP_TOKEN" \
+  --executor "docker" \
+  --docker-image "hashicorp/terraform:1.5" \
+  --description "infra-runner" \
+  --tag-list "infra,terraform" \
+  --run-untagged false \
+  --locked false</code></pre>
+
+        <p>Tag the runner with <code>infra</code> and <code>terraform</code>. Only jobs that specify these tags in <code>.gitlab-ci.yml</code> will route to this runner — keeping infra jobs isolated from application build jobs.</p>
+
+        <h2>The .gitlab-ci.yml pipeline</h2>
+
+        <p>A Terraform pipeline has four natural stages: validate, plan, apply (with manual gate), and destroy (restricted to authorized users).</p>
+
+        <pre><code>stages:
+  - validate
+  - plan
+  - apply
+
+variables:
+  TF_ROOT: ${CI_PROJECT_DIR}/terraform
+  TF_STATE_NAME: ${CI_PROJECT_NAME}
+
+default:
+  image: hashicorp/terraform:1.5
+  tags:
+    - infra
+    - terraform
+  before_script:
+    - cd ${TF_ROOT}
+    - terraform init
+      -backend-config="bucket=${TF_STATE_BUCKET}"
+      -backend-config="key=${TF_STATE_NAME}/terraform.tfstate"
+      -backend-config="region=us-east-1"
+      -input=false
+
+validate:
+  stage: validate
+  script:
+    - terraform validate
+    - terraform fmt -check -recursive
+
+plan:
+  stage: plan
+  script:
+    - terraform plan -out=tfplan -input=false
+    - terraform show -no-color tfplan | tee plan.txt
+  artifacts:
+    name: tfplan
+    paths:
+      - ${TF_ROOT}/tfplan
+      - ${TF_ROOT}/plan.txt
+    expire_in: 1 week
+
+apply:
+  stage: apply
+  script:
+    - terraform apply -input=false tfplan
+  dependencies:
+    - plan
+  when: manual
+  only:
+    - main</code></pre>
+
+        <h2>Environment-specific pipelines with rules</h2>
+
+        <p>For multi-environment setups, use GitLab's <code>rules</code> to control which jobs run on which branches:</p>
+
+        <pre><code>plan:dev:
+  extends: .plan_template
+  variables:
+    TF_WORKSPACE: dev
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+plan:prod:
+  extends: .plan_template
+  variables:
+    TF_WORKSPACE: prod
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'</code></pre>
+
+        <h2>Storing plan output as an artifact</h2>
+
+        <p>Always store the plan file as a GitLab artifact. This does two things: the apply stage can use the exact saved plan (no drift between plan and apply), and reviewers can download <code>plan.txt</code> from the pipeline UI before approving the manual apply job.</p>
+
+        <blockquote>A manual apply gate is non-negotiable for production environments. The reviewer should read the plan output, not just click approve because the pipeline is green.</blockquote>
+
+        <h2>Handling AWS credentials securely</h2>
+
+        <p>Prefer IAM roles over long-lived access keys wherever possible. For self-hosted runners on EC2, attach an instance profile with the required Terraform permissions — no credentials needed in CI/CD variables at all. For GitLab.com shared runners, use OIDC federation with AWS so the runner gets short-lived tokens per job instead of static keys.</p>
+
+        <h2>Wrapping up</h2>
+
+        <p>GitLab + Terraform is a solid combination for infrastructure CI/CD. The key pieces: a tagged self-hosted runner inside your network, group-level variable management, a pipeline with an explicit plan artifact and manual apply gate, and proper credential handling. Get those right and you have a production-grade IaC pipeline with a clean audit trail.</p>
+
+      </div>
+
+      <div style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; font-size:0.75rem;">
+        <a href="../blog/index.html" style="color:var(--text-dim);">← All posts</a>
+        <a href="vscode-extensions-cloud.html" style="color:var(--green);">VS Code Extensions for Cloud →</a>
+      </div>
+
+    </article>
+  </div>
+</div>
+
+<footer>
+  <div class="footer">
+    <span class="footer-logo">sole<span class="accent">.</span>techie</span>
+    <span class="footer-copy">ETL · Big Data · Cloud</span>
+    <span>© 2025</span>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

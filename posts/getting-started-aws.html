@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A practical introduction to AWS — core services, account structure, IAM fundamentals, and the mental model you need to ramp up fast." />
+  <title>Getting Started with AWS — SoleTechie</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23080b0f'/><text y='24' x='4' font-size='22' font-family='monospace' fill='%2300ff88'>S</text></svg>" />
+  <link rel="stylesheet" href="../css/main.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <a href="../index.html" class="nav-logo">sole<span class="accent">.</span>techie</a>
+  <ul class="nav-links">
+    <li><a href="../blog/index.html">Blog</a></li>
+    <li><a href="../index.html#projects">Projects</a></li>
+    <li><a href="../index.html#certs">Certs</a></li>
+    <li><a href="../index.html#about">About</a></li>
+  </ul>
+  <div class="nav-badge">
+    <span class="nav-badge-dot"></span>
+    <span>actively posting</span>
+  </div>
+</nav>
+
+<div class="page-body">
+  <div class="container">
+    <article class="post-layout">
+
+      <header class="post-header">
+        <div class="post-meta">
+          <span class="post-date">December 17, 2021</span>
+          <span class="post-tag tag-aws">AWS</span>
+          <span class="post-tag tag-cloud">Cloud</span>
+          <span style="font-size:.67rem; color:var(--text-dim);">5 min read</span>
+        </div>
+        <h1>Getting Started with AWS</h1>
+      </header>
+
+      <div class="post-content">
+
+        <p>AWS has over 200 services. The breadth is overwhelming at first — but in practice, most workloads are built on a small core of services you'll use constantly. This post covers the mental model and the services that matter most when you're getting started.</p>
+
+        <h2>The right mental model</h2>
+
+        <p>AWS is a collection of building blocks. The skill isn't memorizing every service — it's knowing which building block fits which problem, and how they connect. Every service has a responsibility, an IAM principal that can access it, and a billing model. Start from those three things for any new service you encounter.</p>
+
+        <h2>Core services — the ones you'll use every day</h2>
+
+        <p>These are the services that underpin almost every AWS architecture:</p>
+
+        <ul>
+          <li><strong>IAM</strong> — identity and access management. Users, roles, policies. Nothing in AWS works without IAM, so learn it first and learn it well.</li>
+          <li><strong>VPC</strong> — your private network in AWS. Subnets, route tables, security groups, internet and NAT gateways. Every compute resource lives in a VPC.</li>
+          <li><strong>EC2</strong> — virtual machines. The original AWS service. Still the right choice for workloads that need full OS control or aren't container-friendly.</li>
+          <li><strong>S3</strong> — object storage. Infinitely scalable, extremely durable, cheap. Used as a foundation by almost every other service in AWS.</li>
+          <li><strong>RDS</strong> — managed relational databases (Postgres, MySQL, Aurora, and others). Handles patching, backups, and Multi-AZ failover.</li>
+          <li><strong>Lambda</strong> — serverless functions. Run code without managing servers. Event-driven, scales automatically, billed per execution.</li>
+          <li><strong>CloudWatch</strong> — metrics, logs, and alarms. The observability backbone — every AWS service publishes metrics here by default.</li>
+        </ul>
+
+        <h2>Account structure matters early</h2>
+
+        <p>A common mistake: putting everything in a single AWS account. In any real organization, you want multiple accounts from the start:</p>
+
+        <ul>
+          <li><strong>Management account</strong> — billing and organization-level controls only. No workloads.</li>
+          <li><strong>Dev account</strong> — sandboxes and development environments.</li>
+          <li><strong>Staging account</strong> — pre-production, mirrors prod configuration.</li>
+          <li><strong>Production account</strong> — blast radius isolation from everything else.</li>
+        </ul>
+
+        <p>AWS Organizations and Control Tower handle this structure. It's worth setting up properly at the start — retrofitting account separation onto an existing single-account setup is painful.</p>
+
+        <h2>IAM fundamentals</h2>
+
+        <p>IAM is the most important service to understand. The core concepts:</p>
+
+        <pre><code># The IAM policy evaluation model:
+# 1. Default DENY — everything is denied unless explicitly allowed
+# 2. Explicit ALLOW — a policy grants access to specific actions/resources
+# 3. Explicit DENY — always wins, overrides any allow
+
+# Minimal S3 read policy example
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": ["s3:GetObject", "s3:ListBucket"],
+    "Resource": [
+      "arn:aws:s3:::my-bucket",
+      "arn:aws:s3:::my-bucket/*"
+    ]
+  }]
+}</code></pre>
+
+        <p>The principle of least privilege: grant only the permissions a resource actually needs. For EC2 instances and Lambda functions, always use IAM roles (not access keys). Roles provide temporary credentials that rotate automatically.</p>
+
+        <h2>The AWS CLI</h2>
+
+        <p>Get comfortable with the CLI early. The console is good for exploration; the CLI is what you use for automation, debugging, and anything you want to repeat reliably.</p>
+
+        <pre><code># Configure credentials
+aws configure
+
+# Verify your identity
+aws sts get-caller-identity
+
+# List S3 buckets
+aws s3 ls
+
+# Describe EC2 instances in a region
+aws ec2 describe-instances --region us-east-1 --output table</code></pre>
+
+        <p>Learn the <code>--query</code> flag for JMESPath filtering and <code>--output json/table/text</code> for different output formats. These two flags alone cover most CLI-based debugging needs.</p>
+
+        <h2>What to learn next</h2>
+
+        <p>Once you're comfortable with the core services, the natural progressions are:</p>
+
+        <ul>
+          <li><strong>Networking depth</strong> — VPC peering, Transit Gateway, PrivateLink, VPN/Direct Connect</li>
+          <li><strong>Containers</strong> — ECS Fargate is the easiest on-ramp; EKS if you need Kubernetes</li>
+          <li><strong>Infrastructure as Code</strong> — Terraform or CloudFormation to manage resources reproducibly</li>
+          <li><strong>Data services</strong> — Kinesis, Glue, Athena, Redshift for data engineering workloads</li>
+          <li><strong>Certifications</strong> — the AWS Solutions Architect Associate is the best structured learning path for cloud fundamentals</li>
+        </ul>
+
+        <h2>Wrapping up</h2>
+
+        <p>AWS is learnable. Start with IAM, VPC, EC2, S3, and RDS — understand each one deeply before moving on. Get the multi-account structure right early. Learn the CLI. The rest of the 200+ services are specializations built on this foundation, and they'll make a lot more sense once the fundamentals are solid.</p>
+
+      </div>
+
+      <div style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; font-size:0.75rem;">
+        <a href="../blog/index.html" style="color:var(--text-dim);">← All posts</a>
+        <a href="terraform-lifecycle.html" style="color:var(--green);">Terraform Lifecycle →</a>
+      </div>
+
+    </article>
+  </div>
+</div>
+
+<footer>
+  <div class="footer">
+    <span class="footer-logo">sole<span class="accent">.</span>techie</span>
+    <span class="footer-copy">ETL · Big Data · Cloud</span>
+    <span>© 2025</span>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

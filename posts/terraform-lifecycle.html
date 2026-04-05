@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Daily Terraform workflows — init, workspace management, state file hygiene, and integrating Terraform into Jenkins CI/CD pipelines." />
+  <title>Terraform Lifecycle — SoleTechie</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23080b0f'/><text y='24' x='4' font-size='22' font-family='monospace' fill='%2300ff88'>S</text></svg>" />
+  <link rel="stylesheet" href="../css/main.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <a href="../index.html" class="nav-logo">sole<span class="accent">.</span>techie</a>
+  <ul class="nav-links">
+    <li><a href="../blog/index.html">Blog</a></li>
+    <li><a href="../index.html#projects">Projects</a></li>
+    <li><a href="../index.html#certs">Certs</a></li>
+    <li><a href="../index.html#about">About</a></li>
+  </ul>
+  <div class="nav-badge">
+    <span class="nav-badge-dot"></span>
+    <span>actively posting</span>
+  </div>
+</nav>
+
+<div class="page-body">
+  <div class="container">
+    <article class="post-layout">
+
+      <header class="post-header">
+        <div class="post-meta">
+          <span class="post-date">May 16, 2021</span>
+          <span class="post-tag tag-iac">IaC</span>
+          <span style="font-size:.67rem; color:var(--text-dim);">5 min read</span>
+        </div>
+        <h1>Terraform Lifecycle</h1>
+      </header>
+
+      <div class="post-content">
+
+        <p>Most Terraform tutorials cover the basics — write some HCL, run <code>terraform apply</code>, done. But real day-to-day work with Terraform is about the lifecycle: how you initialize a project, manage workspaces across environments, keep state healthy, and wire it all into a CI/CD pipeline that doesn't break on Friday afternoon.</p>
+
+        <h2>The core commands</h2>
+
+        <p>The Terraform lifecycle maps to five main commands you'll run constantly:</p>
+
+        <ul>
+          <li><code>terraform init</code> — downloads providers, initializes the backend, sets up modules</li>
+          <li><code>terraform validate</code> — syntax and configuration check without hitting any APIs</li>
+          <li><code>terraform plan</code> — shows a diff of what will change, the most important step</li>
+          <li><code>terraform apply</code> — executes the plan</li>
+          <li><code>terraform destroy</code> — tears everything down (use with care in non-dev environments)</li>
+        </ul>
+
+        <p>The habit that matters most: always review the plan output before applying. Every plan. Even small ones. The number of times a "one-line change" showed an unexpected 15-resource replacement is not zero.</p>
+
+        <h2>Backend configuration</h2>
+
+        <p>For anything beyond local testing, state goes in S3 with DynamoDB locking:</p>
+
+        <pre><code>terraform {
+  backend "s3" {
+    bucket         = "my-tfstate-bucket"
+    key            = "infra/prod/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-state-lock"
+    encrypt        = true
+  }
+}</code></pre>
+
+        <p>The DynamoDB table prevents concurrent applies from corrupting state. The bucket should have versioning enabled so you can recover from bad state writes.</p>
+
+        <h2>Workspace management</h2>
+
+        <p>Workspaces are the cleanest way to manage multiple environments (dev, staging, prod) from a single configuration. Each workspace gets its own state file under the same backend key prefix.</p>
+
+        <pre><code># Create and switch to a new workspace
+terraform workspace new staging
+terraform workspace select staging
+terraform workspace list</code></pre>
+
+        <p>I use a <code>locals</code> block to map workspace names to environment-specific values:</p>
+
+        <pre><code>locals {
+  env = terraform.workspace
+
+  config = {
+    dev     = { instance_type = "t3.small",  min_size = 1 }
+    staging = { instance_type = "t3.medium", min_size = 2 }
+    prod    = { instance_type = "m5.large",  min_size = 4 }
+  }
+
+  instance_type = local.config[local.env].instance_type
+  min_size      = local.config[local.env].min_size
+}</code></pre>
+
+        <h2>State file hygiene</h2>
+
+        <p>State drift is the silent killer of Terraform projects. A few rules I follow:</p>
+
+        <ul>
+          <li>Never edit state files manually. Use <code>terraform state mv</code> or <code>terraform import</code> for surgical changes.</li>
+          <li>Run <code>terraform refresh</code> periodically to sync state with actual infrastructure, especially after any manual console changes.</li>
+          <li>Lock down the S3 state bucket with bucket policies — only CI/CD roles and senior engineers should be able to write to it.</li>
+          <li>Separate state per environment and per major subsystem (networking state, app state, data state) — don't put everything in one monolithic state file.</li>
+        </ul>
+
+        <h2>Integrating with Jenkins CI/CD</h2>
+
+        <p>A standard Jenkins pipeline for Terraform runs four stages: init, validate, plan, and a manual-approval-gated apply:</p>
+
+        <pre><code>pipeline {
+  agent any
+  environment {
+    AWS_DEFAULT_REGION = 'us-east-1'
+    TF_WORKSPACE      = "${params.ENVIRONMENT}"
+  }
+  stages {
+    stage('Init') {
+      steps { sh 'terraform init -input=false' }
+    }
+    stage('Validate') {
+      steps { sh 'terraform validate' }
+    }
+    stage('Plan') {
+      steps {
+        sh 'terraform plan -out=tfplan -input=false'
+        sh 'terraform show -no-color tfplan > plan.txt'
+        archiveArtifacts 'plan.txt'
+      }
+    }
+    stage('Apply') {
+      when { branch 'main' }
+      input { message "Review plan.txt — apply to ${params.ENVIRONMENT}?" }
+      steps { sh 'terraform apply -input=false tfplan' }
+    }
+  }
+}</code></pre>
+
+        <p>The manual approval gate on apply is non-negotiable for production. Save the plan output as a Jenkins artifact so the reviewer can read exactly what will change before approving.</p>
+
+        <h2>Lifecycle meta-arguments</h2>
+
+        <p>Terraform's <code>lifecycle</code> block lets you control how specific resources behave during plan/apply:</p>
+
+        <pre><code>resource "aws_instance" "app" {
+  # ...
+  lifecycle {
+    create_before_destroy = true   # zero-downtime replacement
+    prevent_destroy       = true   # block accidental deletion
+    ignore_changes        = [tags] # don't drift-detect tag changes
+  }
+}</code></pre>
+
+        <p><code>prevent_destroy</code> is especially useful on databases and stateful resources where an accidental destroy would be catastrophic.</p>
+
+        <h2>Wrapping up</h2>
+
+        <p>The Terraform lifecycle is straightforward once the patterns click — consistent workspace discipline, healthy state management, and a CI/CD pipeline that enforces review before apply. Get those three right and Terraform becomes a reliable, low-drama part of your infrastructure workflow.</p>
+
+      </div>
+
+      <div style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; font-size:0.75rem;">
+        <a href="../blog/index.html" style="color:var(--text-dim);">← All posts</a>
+        <a href="enterprise-patterns-terraform.html" style="color:var(--green);">Enterprise Patterns in Terraform →</a>
+      </div>
+
+    </article>
+  </div>
+</div>
+
+<footer>
+  <div class="footer">
+    <span class="footer-logo">sole<span class="accent">.</span>techie</span>
+    <span class="footer-copy">ETL · Big Data · Cloud</span>
+    <span>© 2025</span>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+</body>
+</html>
