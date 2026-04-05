@@ -1,36 +1,5 @@
 # SoleTechie — GitHub Pages Site
 
-Dark terminal aesthetic blog & portfolio for data engineering / cloud content.
-
----
-
-## 🚀 Deploy to GitHub Pages in 5 steps
-
-### Step 1 — Create the repo
-1. Go to [github.com/new](https://github.com/new)
-2. Name it **exactly**: `YOUR-USERNAME.github.io`
-   - Example: if your GitHub username is `soletechie1`, name it `soletechie1.github.io`
-3. Set to **Public**, leave everything else default
-4. Click **Create repository**
-
-### Step 2 — Upload these files
-Option A — via GitHub UI (easiest):
-1. Open your new repo on GitHub
-2. Click **Add file → Upload files**
-3. Drag the entire contents of this folder (not the folder itself, the files inside it)
-4. Commit directly to `main`
-
-Option B — via Git CLI:
-```bash
-cd soletechie-site
-git init
-git add .
-git commit -m "initial site"
-git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/YOUR-USERNAME.github.io.git
-git push -u origin main
-```
-
 ### Step 3 — Enable GitHub Pages
 1. In your repo, go to **Settings → Pages**
 2. Under **Source**, select **Deploy from a branch**
