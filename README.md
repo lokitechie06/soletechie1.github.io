@@ -1,32 +1,5 @@
 # SoleTechie — GitHub Pages Site
 
-### Step 3 — Enable GitHub Pages
-1. In your repo, go to **Settings → Pages**
-2. Under **Source**, select **Deploy from a branch**
-3. Branch: `main`, folder: `/ (root)`
-4. Click **Save**
-
-### Step 4 — Wait ~2 minutes
-GitHub will build and deploy. Your site will be live at:
-```
-https://YOUR-USERNAME.github.io
-```
-
-### Step 5 — (Optional) Connect your custom domain
-If you own `soletechie.com`:
-1. In **Settings → Pages → Custom domain**, enter `soletechie.com`
-2. At your domain registrar (Squarespace/Google Domains/etc), add these DNS records:
-   ```
-   A     @   185.199.108.153
-   A     @   185.199.109.153
-   A     @   185.199.110.153
-   A     @   185.199.111.153
-   CNAME www YOUR-USERNAME.github.io
-   ```
-3. Check **Enforce HTTPS** once DNS propagates (~24h)
-
----
-
 ## 📁 File structure
 
 ```
