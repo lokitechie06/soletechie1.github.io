@@ -42,8 +42,8 @@
 
       <p class="hero-desc">
         Deep dives into <strong>ETL pipelines</strong>, <strong>big data</strong>, and multi-cloud
-        architecture across AWS, GCP, and Azure. Also documenting patents, certifications,
-        and random discoveries along the way.
+        architecture across AWS, GCP, and Azure. Also documenting certifications, research,
+        and the random things I learn along the way.
       </p>
 
       <div class="hero-chips">
@@ -56,7 +56,7 @@
         <span class="chip">Airflow</span>
         <span class="chip">Redshift</span>
         <span class="chip">Python</span>
-        <span class="chip chip-green">Patent Pending</span>
+        <span class="chip">Amazon Connect</span>
       </div>
 
       <div class="hero-actions">
@@ -224,39 +224,23 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════
-     PROJECTS & PATENTS
+     PROJECTS
 ════════════════════════════════════════════════ -->
 <section id="projects" class="section">
   <div class="container">
     <div class="sec-head reveal">
       <span class="sec-num">02</span>
-      <h2 class="sec-title">Projects & Patents</h2>
+      <h2 class="sec-title">Projects & Research</h2>
       <div class="sec-line"></div>
     </div>
 
     <div class="projects-list">
 
       <div class="proj-card reveal">
-        <div class="proj-icon pi-patent">💡</div>
-        <div>
-          <div class="proj-name">Intelligent Data Routing System <span style="font-size:.68rem;color:var(--text-dim);font-weight:400;">(Patent Pending)</span></div>
-          <div class="proj-desc">A novel approach to dynamically routing streaming data across heterogeneous cloud storage backends based on real-time schema inference and cost optimization signals. Filed with the USPTO.</div>
-          <div class="proj-tags">
-            <span class="proj-tag">Kinesis</span>
-            <span class="proj-tag">Lambda</span>
-            <span class="proj-tag">Schema Registry</span>
-            <span class="proj-tag">Cost Optimization</span>
-            <span class="proj-tag">USPTO</span>
-          </div>
-        </div>
-        <span class="proj-status s-pending">⏳ Pending</span>
-      </div>
-
-      <div class="proj-card reveal">
         <div class="proj-icon pi-build">⚙️</div>
         <div>
           <div class="proj-name">SoleTechie ETL Framework</div>
-          <div class="proj-desc">Modular, reusable ETL framework built in Python + Airflow that abstracts connector logic for 10+ data sources. Deployed across AWS Glue and self-managed EMR clusters.</div>
+          <div class="proj-desc">Modular, reusable ETL framework built in Python + Airflow that abstracts connector logic for 10+ data sources. Deployed across AWS Glue and self-managed EMR clusters with pluggable schema validation.</div>
           <div class="proj-tags">
             <span class="proj-tag">Python</span>
             <span class="proj-tag">Airflow</span>
@@ -269,10 +253,26 @@
       </div>
 
       <div class="proj-card reveal">
+        <div class="proj-icon pi-data">📊</div>
+        <div>
+          <div class="proj-name">Amazon Connect Analytics Dashboard</div>
+          <div class="proj-desc">Full CTR pipeline from Kinesis → Firehose → S3 → Athena, with a QuickSight dashboard surfacing real-time contact center KPIs — agent metrics, queue performance, and SLA tracking. Documented in the blog.</div>
+          <div class="proj-tags">
+            <span class="proj-tag">AWS Connect</span>
+            <span class="proj-tag">QuickSight</span>
+            <span class="proj-tag">Athena</span>
+            <span class="proj-tag">Kinesis</span>
+            <span class="proj-tag">Lambda</span>
+          </div>
+        </div>
+        <span class="proj-status s-done">✓ Complete</span>
+      </div>
+
+      <div class="proj-card reveal">
         <div class="proj-icon pi-research">🔬</div>
         <div>
           <div class="proj-name">Multi-Cloud Cost Attribution Research</div>
-          <div class="proj-desc">Researching tagging strategies, showback models, and FinOps patterns for orgs running workloads simultaneously across AWS, GCP, and Azure. Working toward a published writeup.</div>
+          <div class="proj-desc">Investigating tagging strategies, showback models, and FinOps patterns for enterprises running workloads simultaneously across AWS, GCP, and Azure. Working toward a full published writeup.</div>
           <div class="proj-tags">
             <span class="proj-tag">FinOps</span>
             <span class="proj-tag">AWS Cost Explorer</span>
@@ -284,19 +284,19 @@
       </div>
 
       <div class="proj-card reveal">
-        <div class="proj-icon pi-data">📊</div>
+        <div class="proj-icon pi-build">🏗️</div>
         <div>
-          <div class="proj-name">Amazon Connect Analytics Dashboard</div>
-          <div class="proj-desc">Full CTR pipeline from Kinesis → Firehose → S3 → Athena, with a QuickSight dashboard surfacing real-time contact center KPIs. Fully documented in the blog.</div>
+          <div class="proj-name">Terraform Module Library</div>
+          <div class="proj-desc">A collection of battle-tested, enterprise-grade Terraform modules covering networking, compute, data, and observability layers — built to the encapsulation and privilege boundary principles covered in the blog.</div>
           <div class="proj-tags">
-            <span class="proj-tag">AWS Connect</span>
-            <span class="proj-tag">QuickSight</span>
-            <span class="proj-tag">Athena</span>
-            <span class="proj-tag">Kinesis</span>
-            <span class="proj-tag">Lambda</span>
+            <span class="proj-tag">Terraform</span>
+            <span class="proj-tag">AWS VPC</span>
+            <span class="proj-tag">IAM</span>
+            <span class="proj-tag">CloudWatch</span>
+            <span class="proj-tag">RDS</span>
           </div>
         </div>
-        <span class="proj-status s-done">✓ Complete</span>
+        <span class="proj-status s-active">● Active</span>
       </div>
 
     </div>
@@ -448,7 +448,7 @@
           </div>
           <div class="about-status-row">
             <span class="about-status-key">focus:</span>
-            <span class="about-status-val">cloud · data · patents</span>
+            <span class="about-status-val">cloud · data · certs</span>
           </div>
           <div class="about-status-row">
             <span class="about-status-key">writing:</span>
@@ -462,7 +462,7 @@
         <div class="about-role">// Data Engineer · Cloud Architect · Tinkerer</div>
         <div class="about-bio">
           <p>I build data infrastructure — pipelines, platforms, and the plumbing that moves data from wherever it lives to wherever it needs to be. My work spans ETL design, big data processing, and multi-cloud architecture across AWS, GCP, and Azure.</p>
-          <p>This site is where I document the things I'm working on and learning: deep dives into cloud services, notes from certification study, patent ideas I'm developing, and observations that seem worth writing down before I forget them.</p>
+          <p>This site is where I document the things I'm working on and learning: deep dives into cloud services, notes from certification study, research I'm exploring, and observations that seem worth writing down before I forget them.</p>
           <p>If it involves Terraform, Spark, a Kinesis stream, or a tricky Athena query — there's probably a post about it here or one incoming.</p>
         </div>
         <div class="about-links">
