@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="SoleTechie — ETL, big data, and cloud architecture across AWS, GCP & Azure. Deep dives, projects, patents, and certifications." />
+  <title>SoleTechie — Data Engineering & Cloud Architecture</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23080b0f'/><text y='24' x='4' font-size='22' font-family='monospace' fill='%2300ff88'>S</text></svg>" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     NAV
+════════════════════════════════════════════════ -->
+<nav class="nav">
+  <a href="index.html" class="nav-logo">sole<span class="accent">.</span>techie</a>
+  <ul class="nav-links">
+    <li><a href="#blog">Blog</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#certs">Certs</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+  <div class="nav-badge">
+    <span class="nav-badge-dot"></span>
+    <span>actively posting</span>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════ -->
+<div class="hero-bg"></div>
+<section id="home">
+  <div class="hero">
+
+    <!-- Left: copy -->
+    <div class="hero-left">
+      <div class="hero-eyebrow">Data Engineer · Cloud Architect</div>
+
+      <h1>Building at the<br/>edge of <em>data</em><br/>& cloud infra</h1>
+
+      <p class="hero-desc">
+        Deep dives into <strong>ETL pipelines</strong>, <strong>big data</strong>, and multi-cloud
+        architecture across AWS, GCP, and Azure. Also documenting patents, certifications,
+        and random discoveries along the way.
+      </p>
+
+      <div class="hero-chips">
+        <span class="chip chip-aws">AWS</span>
+        <span class="chip chip-gcp">GCP</span>
+        <span class="chip chip-azure">Azure</span>
+        <span class="chip">Terraform</span>
+        <span class="chip">Spark</span>
+        <span class="chip">Databricks</span>
+        <span class="chip">Airflow</span>
+        <span class="chip">Redshift</span>
+        <span class="chip">Python</span>
+        <span class="chip chip-green">Patent Pending</span>
+      </div>
+
+      <div class="hero-actions">
+        <a href="#blog"  class="btn btn-primary">→ Read the Blog</a>
+        <a href="blog/index.html" class="btn btn-outline">All Posts</a>
+      </div>
+    </div>
+
+    <!-- Right: terminal -->
+    <div class="hero-terminal">
+      <div class="term-bar">
+        <span class="tdot tdot-r"></span>
+        <span class="tdot tdot-y"></span>
+        <span class="tdot tdot-g"></span>
+        <span class="term-title">~/soletechie — zsh</span>
+      </div>
+      <div class="term-body">
+        <span class="tl tw-line"><span class="tp">❯ </span><span class="tc">whoami</span></span>
+        <span class="tl tw-line"><span class="to">data-engineer @ soletechie</span></span>
+        <span class="tl">&nbsp;</span>
+        <span class="tl tw-line"><span class="tp">❯ </span><span class="tc">cat stack.yml</span></span>
+        <span class="tl tw-line"><span class="td">cloud:</span></span>
+        <span class="tl tw-line"><span class="td">&nbsp;&nbsp;- </span><span class="tw">aws</span><span class="td"> # primary</span></span>
+        <span class="tl tw-line"><span class="td">&nbsp;&nbsp;- </span><span class="ts">azure</span></span>
+        <span class="tl tw-line"><span class="td">&nbsp;&nbsp;- </span><span class="to">gcp</span></span>
+        <span class="tl tw-line"><span class="td">iac: terraform</span></span>
+        <span class="tl tw-line"><span class="td">pipelines: airflow + spark</span></span>
+        <span class="tl">&nbsp;</span>
+        <span class="tl tw-line"><span class="tp">❯ </span><span class="tc">git log --oneline -4</span></span>
+        <span class="tl tw-line"><span class="tw">a3f2c1d</span><span class="td"> Amazon Kendra deep dive</span></span>
+        <span class="tl tw-line"><span class="tw">8d91b2e</span><span class="td"> AWS Connect reporting</span></span>
+        <span class="tl tw-line"><span class="tw">c42a0f8</span><span class="td"> Enterprise Terraform patterns</span></span>
+        <span class="tl tw-line"><span class="tw">f71e3a2</span><span class="td"> Setting up GitLab CI/CD</span></span>
+        <span class="tl">&nbsp;</span>
+        <span class="tl"><span class="tp">❯ </span><span class="tcursor"></span></span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     BLOG
+════════════════════════════════════════════════ -->
+<section id="blog" class="section">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="sec-num">01</span>
+      <h2 class="sec-title">Articles & Deep Dives</h2>
+      <div class="sec-line"></div>
+    </div>
+
+    <div class="posts-grid">
+
+      <!-- FEATURED -->
+      <a href="posts/amazon-kendra-deep-dive.html" class="post-card featured reveal">
+        <div class="post-body">
+          <div class="featured-label">Latest Post</div>
+          <div class="post-meta">
+            <span class="post-date">Dec 06, 2025</span>
+            <span class="post-tag tag-aws">AWS</span>
+            <span class="post-tag tag-data">Search</span>
+          </div>
+          <div class="post-title">Amazon Kendra Deep Dive</div>
+          <p class="post-excerpt">ML-powered enterprise search — setting up an index, configuring data source connectors across S3, Sharepoint, Salesforce, and ServiceNow. Metadata, FAQ ingestion, and query tuning for relevance at scale.</p>
+          <div class="post-footer">
+            <span>8 min read</span>
+            <span class="post-read">read more →</span>
+          </div>
+        </div>
+        <div class="post-glyph">
+          <svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(0,255,136,.08)" stroke-width="1"/>
+            <circle cx="50" cy="50" r="30" fill="none" stroke="rgba(0,255,136,.12)" stroke-width="1"/>
+            <circle cx="50" cy="50" r="16" fill="none" stroke="rgba(0,255,136,.2)" stroke-width="1"/>
+            <circle cx="50" cy="50" r="4"  fill="rgba(0,255,136,.6)"/>
+            <line x1="50" y1="6"  x2="50" y2="22" stroke="rgba(0,212,255,.35)" stroke-width="1.5"/>
+            <line x1="50" y1="78" x2="50" y2="94" stroke="rgba(0,212,255,.35)" stroke-width="1.5"/>
+            <line x1="6"  y1="50" x2="22" y2="50" stroke="rgba(0,212,255,.35)" stroke-width="1.5"/>
+            <line x1="78" y1="50" x2="94" y2="50" stroke="rgba(0,212,255,.35)" stroke-width="1.5"/>
+            <circle cx="50" cy="6"  r="2.5" fill="rgba(0,212,255,.6)"/>
+            <circle cx="50" cy="94" r="2.5" fill="rgba(0,212,255,.6)"/>
+            <circle cx="6"  cy="50" r="2.5" fill="rgba(0,212,255,.6)"/>
+            <circle cx="94" cy="50" r="2.5" fill="rgba(0,212,255,.6)"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- Post 2 -->
+      <a href="posts/aws-connect-reporting.html" class="post-card reveal">
+        <div class="post-meta">
+          <span class="post-date">Aug 09, 2023</span>
+          <span class="post-tag tag-aws">AWS</span>
+        </div>
+        <div class="post-title">AWS Connect: Reporting & Visualizations</div>
+        <p class="post-excerpt">Building the full CTR analytics pipeline — Kinesis Data Stream → Firehose → S3 → Athena → QuickSight. Partition strategies and Lambda transforms.</p>
+        <div class="post-footer">
+          <span>6 min read</span>
+          <span class="post-read">read more →</span>
+        </div>
+      </a>
+
+      <!-- Post 3 -->
+      <a href="posts/terraform-lifecycle.html" class="post-card reveal">
+        <div class="post-meta">
+          <span class="post-date">May 16, 2021</span>
+          <span class="post-tag tag-iac">IaC</span>
+        </div>
+        <div class="post-title">Terraform Lifecycle</div>
+        <p class="post-excerpt">Daily Terraform workflows — init, workspace management, state file hygiene, and integrating terraform into Jenkins CI/CD pipelines.</p>
+        <div class="post-footer">
+          <span>5 min read</span>
+          <span class="post-read">read more →</span>
+        </div>
+      </a>
+
+      <!-- Post 4 -->
+      <a href="posts/enterprise-patterns-terraform.html" class="post-card reveal">
+        <div class="post-meta">
+          <span class="post-date">Jan 06, 2021</span>
+          <span class="post-tag tag-iac">IaC</span>
+        </div>
+        <div class="post-title">Enterprise Patterns in Terraform</div>
+        <p class="post-excerpt">Scoping modules with encapsulation, privilege boundaries, and volatility. Building reusable 80% MVPs without over-engineering edge cases.</p>
+        <div class="post-footer">
+          <span>7 min read</span>
+          <span class="post-read">read more →</span>
+        </div>
+      </a>
+
+      <!-- Post 5 -->
+      <a href="posts/vscode-extensions-cloud.html" class="post-card reveal">
+        <div class="post-meta">
+          <span class="post-date">Dec 17, 2021</span>
+          <span class="post-tag tag-tool">Tooling</span>
+        </div>
+        <div class="post-title">Must-Use VS Code Extensions for Cloud Engineers</div>
+        <p class="post-excerpt">Terraform autocomplete, Docker, AWS Toolkit, Git Graph — the extensions that actually save time in multi-cloud workflows.</p>
+        <div class="post-footer">
+          <span>4 min read</span>
+          <span class="post-read">read more →</span>
+        </div>
+      </a>
+
+      <!-- Post 6 -->
+      <a href="posts/gitlab-cicd-setup.html" class="post-card reveal">
+        <div class="post-meta">
+          <span class="post-date">May 05, 2022</span>
+          <span class="post-tag tag-devops">DevOps</span>
+        </div>
+        <div class="post-title">Setting Up GitLab + CI/CD with Terraform</div>
+        <p class="post-excerpt">Bootstrapping a private GitLab group, configuring runners, and wiring Terraform infrastructure deployments into a real CI/CD flow from scratch.</p>
+        <div class="post-footer">
+          <span>5 min read</span>
+          <span class="post-read">read more →</span>
+        </div>
+      </a>
+
+    </div>
+
+    <div style="text-align:center; margin-top:2.5rem;" class="reveal">
+      <a href="blog/index.html" class="btn btn-outline">View all posts →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     PROJECTS & PATENTS
+════════════════════════════════════════════════ -->
+<section id="projects" class="section">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="sec-num">02</span>
+      <h2 class="sec-title">Projects & Patents</h2>
+      <div class="sec-line"></div>
+    </div>
+
+    <div class="projects-list">
+
+      <div class="proj-card reveal">
+        <div class="proj-icon pi-patent">💡</div>
+        <div>
+          <div class="proj-name">Intelligent Data Routing System <span style="font-size:.68rem;color:var(--text-dim);font-weight:400;">(Patent Pending)</span></div>
+          <div class="proj-desc">A novel approach to dynamically routing streaming data across heterogeneous cloud storage backends based on real-time schema inference and cost optimization signals. Filed with the USPTO.</div>
+          <div class="proj-tags">
+            <span class="proj-tag">Kinesis</span>
+            <span class="proj-tag">Lambda</span>
+            <span class="proj-tag">Schema Registry</span>
+            <span class="proj-tag">Cost Optimization</span>
+            <span class="proj-tag">USPTO</span>
+          </div>
+        </div>
+        <span class="proj-status s-pending">⏳ Pending</span>
+      </div>
+
+      <div class="proj-card reveal">
+        <div class="proj-icon pi-build">⚙️</div>
+        <div>
+          <div class="proj-name">SoleTechie ETL Framework</div>
+          <div class="proj-desc">Modular, reusable ETL framework built in Python + Airflow that abstracts connector logic for 10+ data sources. Deployed across AWS Glue and self-managed EMR clusters.</div>
+          <div class="proj-tags">
+            <span class="proj-tag">Python</span>
+            <span class="proj-tag">Airflow</span>
+            <span class="proj-tag">AWS Glue</span>
+            <span class="proj-tag">EMR</span>
+            <span class="proj-tag">S3</span>
+          </div>
+        </div>
+        <span class="proj-status s-active">● Active</span>
+      </div>
+
+      <div class="proj-card reveal">
+        <div class="proj-icon pi-research">🔬</div>
+        <div>
+          <div class="proj-name">Multi-Cloud Cost Attribution Research</div>
+          <div class="proj-desc">Researching tagging strategies, showback models, and FinOps patterns for orgs running workloads simultaneously across AWS, GCP, and Azure. Working toward a published writeup.</div>
+          <div class="proj-tags">
+            <span class="proj-tag">FinOps</span>
+            <span class="proj-tag">AWS Cost Explorer</span>
+            <span class="proj-tag">BigQuery</span>
+            <span class="proj-tag">Azure Cost Mgmt</span>
+          </div>
+        </div>
+        <span class="proj-status s-active">● Active</span>
+      </div>
+
+      <div class="proj-card reveal">
+        <div class="proj-icon pi-data">📊</div>
+        <div>
+          <div class="proj-name">Amazon Connect Analytics Dashboard</div>
+          <div class="proj-desc">Full CTR pipeline from Kinesis → Firehose → S3 → Athena, with a QuickSight dashboard surfacing real-time contact center KPIs. Fully documented in the blog.</div>
+          <div class="proj-tags">
+            <span class="proj-tag">AWS Connect</span>
+            <span class="proj-tag">QuickSight</span>
+            <span class="proj-tag">Athena</span>
+            <span class="proj-tag">Kinesis</span>
+            <span class="proj-tag">Lambda</span>
+          </div>
+        </div>
+        <span class="proj-status s-done">✓ Complete</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     CERTIFICATIONS & SKILLS
+════════════════════════════════════════════════ -->
+<section id="certs" class="section">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="sec-num">03</span>
+      <h2 class="sec-title">Certifications & Skills</h2>
+      <div class="sec-line"></div>
+    </div>
+
+    <div class="certs-grid">
+
+      <div class="cert-card reveal">
+        <div class="cert-top">
+          <div class="cert-icon ci-aws">☁️</div>
+          <span class="cert-provider">Amazon Web Services</span>
+        </div>
+        <div class="cert-name">AWS Certified Solutions Architect – Associate</div>
+        <div class="cert-foot">
+          <span>SAA-C03 · 2023</span>
+          <span class="cert-ok">Verified</span>
+        </div>
+      </div>
+
+      <div class="cert-card reveal">
+        <div class="cert-top">
+          <div class="cert-icon ci-aws">☁️</div>
+          <span class="cert-provider">Amazon Web Services</span>
+        </div>
+        <div class="cert-name">AWS Certified Data Analytics – Specialty</div>
+        <div class="cert-foot">
+          <span>DAS-C01 · 2022</span>
+          <span class="cert-ok">Verified</span>
+        </div>
+      </div>
+
+      <div class="cert-card reveal">
+        <div class="cert-top">
+          <div class="cert-icon ci-azure">🔷</div>
+          <span class="cert-provider">Microsoft Azure</span>
+        </div>
+        <div class="cert-name">Azure Data Engineer Associate (DP-203)</div>
+        <div class="cert-foot">
+          <span>DP-203 · 2021</span>
+          <span class="cert-ok">Verified</span>
+        </div>
+      </div>
+
+      <div class="cert-card reveal">
+        <div class="cert-top">
+          <div class="cert-icon ci-hashi">🏗️</div>
+          <span class="cert-provider">HashiCorp</span>
+        </div>
+        <div class="cert-name">Terraform Associate (003)</div>
+        <div class="cert-foot">
+          <span>TA-003 · 2022</span>
+          <span class="cert-ok">Verified</span>
+        </div>
+      </div>
+
+      <div class="cert-card reveal">
+        <div class="cert-top">
+          <div class="cert-icon ci-gcp">🌐</div>
+          <span class="cert-provider">Google Cloud</span>
+        </div>
+        <div class="cert-name">Professional Data Engineer</div>
+        <div class="cert-foot">
+          <span>In progress</span>
+          <span class="cert-wip">Studying</span>
+        </div>
+      </div>
+
+      <div class="cert-card reveal">
+        <div class="cert-top">
+          <div class="cert-icon ci-db">🧱</div>
+          <span class="cert-provider">Databricks</span>
+        </div>
+        <div class="cert-name">Databricks Certified Data Engineer</div>
+        <div class="cert-foot">
+          <span>Planned</span>
+          <span class="cert-plan">Next up</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Skill bars -->
+    <div class="skills-wrapper">
+
+      <div class="skill-group reveal">
+        <div class="skill-group-label">Cloud Platforms</div>
+        <div class="skill-bars">
+          <div class="skill-row"><span class="skill-label">AWS</span><div class="bar-track"><div class="bar-fill" style="width:92%"></div></div><span class="skill-pct">92%</span></div>
+          <div class="skill-row"><span class="skill-label">Azure</span><div class="bar-track"><div class="bar-fill" style="width:76%"></div></div><span class="skill-pct">76%</span></div>
+          <div class="skill-row"><span class="skill-label">GCP</span><div class="bar-track"><div class="bar-fill" style="width:65%"></div></div><span class="skill-pct">65%</span></div>
+        </div>
+      </div>
+
+      <div class="skill-group reveal">
+        <div class="skill-group-label">Data Engineering</div>
+        <div class="skill-bars">
+          <div class="skill-row"><span class="skill-label">ETL / Pipelines</span><div class="bar-track"><div class="bar-fill" style="width:91%"></div></div><span class="skill-pct">91%</span></div>
+          <div class="skill-row"><span class="skill-label">Spark / EMR</span><div class="bar-track"><div class="bar-fill" style="width:83%"></div></div><span class="skill-pct">83%</span></div>
+          <div class="skill-row"><span class="skill-label">Airflow</span><div class="bar-track"><div class="bar-fill" style="width:79%"></div></div><span class="skill-pct">79%</span></div>
+          <div class="skill-row"><span class="skill-label">Databricks</span><div class="bar-track"><div class="bar-fill" style="width:70%"></div></div><span class="skill-pct">70%</span></div>
+        </div>
+      </div>
+
+      <div class="skill-group reveal">
+        <div class="skill-group-label">Infrastructure & Code</div>
+        <div class="skill-bars">
+          <div class="skill-row"><span class="skill-label">Terraform</span><div class="bar-track"><div class="bar-fill" style="width:88%"></div></div><span class="skill-pct">88%</span></div>
+          <div class="skill-row"><span class="skill-label">Python</span><div class="bar-track"><div class="bar-fill" style="width:86%"></div></div><span class="skill-pct">86%</span></div>
+          <div class="skill-row"><span class="skill-label">CI/CD (GitLab)</span><div class="bar-track"><div class="bar-fill" style="width:80%"></div></div><span class="skill-pct">80%</span></div>
+          <div class="skill-row"><span class="skill-label">Docker</span><div class="bar-track"><div class="bar-fill" style="width:73%"></div></div><span class="skill-pct">73%</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     ABOUT
+════════════════════════════════════════════════ -->
+<section id="about" class="section">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="sec-num">04</span>
+      <h2 class="sec-title">About Me</h2>
+      <div class="sec-line"></div>
+    </div>
+
+    <div class="about-grid">
+
+      <div class="about-avatar-wrap reveal">
+        <div class="about-avatar">🧑‍💻</div>
+        <div class="about-status">
+          <div class="about-status-row">
+            <span class="about-status-key">status:</span>
+            <span class="about-status-val green">● open to connect</span>
+          </div>
+          <div class="about-status-row">
+            <span class="about-status-key">focus:</span>
+            <span class="about-status-val">cloud · data · patents</span>
+          </div>
+          <div class="about-status-row">
+            <span class="about-status-key">writing:</span>
+            <span class="about-status-val">soletechie.com</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="about-name">SoleTechie</div>
+        <div class="about-role">// Data Engineer · Cloud Architect · Tinkerer</div>
+        <div class="about-bio">
+          <p>I build data infrastructure — pipelines, platforms, and the plumbing that moves data from wherever it lives to wherever it needs to be. My work spans ETL design, big data processing, and multi-cloud architecture across AWS, GCP, and Azure.</p>
+          <p>This site is where I document the things I'm working on and learning: deep dives into cloud services, notes from certification study, patent ideas I'm developing, and observations that seem worth writing down before I forget them.</p>
+          <p>If it involves Terraform, Spark, a Kinesis stream, or a tricky Athena query — there's probably a post about it here or one incoming.</p>
+        </div>
+        <div class="about-links">
+          <a href="https://www.soletechie.com"        class="about-link">🌐 Old Blog</a>
+          <a href="https://github.com/soletechie1"    class="about-link">⚡ GitHub</a>
+          <a href="https://gitlab.com/soletechie"     class="about-link">🦊 GitLab</a>
+          <a href="#"                                  class="about-link">💼 LinkedIn</a>
+          <a href="mailto:hello@soletechie.com"        class="about-link">✉ Email</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer">
+    <span class="footer-logo">sole<span class="accent">.</span>techie</span>
+    <span class="footer-copy">ETL · Big Data · Cloud · Built with intent, not defaults</span>
+    <span>© 2025</span>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

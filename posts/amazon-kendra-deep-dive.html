@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Deep dive into Amazon Kendra — ML-powered enterprise search. Index setup, connectors, FAQ ingestion, and query tuning." />
+  <title>Amazon Kendra Deep Dive — SoleTechie</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23080b0f'/><text y='24' x='4' font-size='22' font-family='monospace' fill='%2300ff88'>S</text></svg>" />
+  <link rel="stylesheet" href="../css/main.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <a href="../index.html" class="nav-logo">sole<span class="accent">.</span>techie</a>
+  <ul class="nav-links">
+    <li><a href="../blog/index.html">Blog</a></li>
+    <li><a href="../index.html#projects">Projects</a></li>
+    <li><a href="../index.html#certs">Certs</a></li>
+    <li><a href="../index.html#about">About</a></li>
+  </ul>
+  <div class="nav-badge">
+    <span class="nav-badge-dot"></span>
+    <span>actively posting</span>
+  </div>
+</nav>
+
+<div class="page-body">
+  <div class="container">
+    <article class="post-layout">
+
+      <header class="post-header">
+        <div class="post-meta">
+          <span class="post-date">December 06, 2025</span>
+          <span class="post-tag tag-aws">AWS</span>
+          <span class="post-tag tag-data">Search</span>
+          <span style="font-size:.67rem; color:var(--text-dim);">8 min read</span>
+        </div>
+        <h1>Amazon Kendra Deep Dive</h1>
+      </header>
+
+      <div class="post-content">
+
+        <p>Amazon Kendra is an ML-powered enterprise search service that lets developers add intelligent search to their applications. Unlike traditional keyword search, Kendra understands the context and intent behind a query and returns the most relevant document — even if the exact words don't match.</p>
+
+        <h2>What problems does Kendra solve?</h2>
+
+        <p>Most enterprises have data scattered across dozens of systems — S3, SharePoint, Salesforce, ServiceNow, RDS, OneDrive, and more. Kendra provides a unified search layer over all of it without requiring you to move or copy the data.</p>
+
+        <p>The key differentiator is the ML backbone. When a user types a natural language question, Kendra doesn't just scan for keyword hits — it uses reading comprehension models to understand the question and surface the most relevant passage or document.</p>
+
+        <h2>High-level architecture</h2>
+
+        <p>Setting up Kendra follows a clear pattern:</p>
+
+        <ol>
+          <li><strong>Create an Index</strong> — the central container that holds all indexed content and powers search.</li>
+          <li><strong>Connect data sources</strong> — use native connectors to ingest from S3, SharePoint, Salesforce, ServiceNow, RDS, OneDrive, and more.</li>
+          <li><strong>Ingest and sync</strong> — data is crawled and indexed on a schedule or on-demand.</li>
+          <li><strong>Define document metadata</strong> — metadata fields enable faceting, filtering, and relevance tuning.</li>
+          <li><strong>Ingest FAQs</strong> — upload question/answer pairs that Kendra can surface directly in results.</li>
+          <li><strong>Run queries and audit</strong> — use the console or API to test and tune result quality.</li>
+        </ol>
+
+        <h2>Creating the Index</h2>
+
+        <pre><code># Via AWS CLI
+aws kendra create-index \
+  --name "enterprise-search" \
+  --role-arn "arn:aws:iam::123456789012:role/KendraRole" \
+  --edition "ENTERPRISE_EDITION"</code></pre>
+
+        <p>The index is the most important resource — it controls the edition (Developer vs Enterprise), the IAM role for accessing data sources, and the encryption settings. Enterprise edition is required for production workloads; Developer is fine for testing.</p>
+
+        <h2>Data source connectors</h2>
+
+        <p>Kendra supports 40+ native connectors. The most commonly used in enterprise settings are S3, SharePoint Online, Salesforce, and ServiceNow. Each connector requires:</p>
+
+        <ul>
+          <li>A Secrets Manager secret containing auth credentials</li>
+          <li>IAM permissions for Kendra to read from the source</li>
+          <li>A sync schedule (hourly, daily, or on-demand)</li>
+        </ul>
+
+        <pre><code># S3 data source example (Terraform)
+resource "aws_kendra_data_source" "docs" {
+  index_id = aws_kendra_index.main.id
+  name     = "s3-documents"
+  type     = "S3"
+
+  configuration {
+    s3_configuration {
+      bucket_name = "my-enterprise-docs"
+      inclusion_prefixes = ["manuals/", "policies/"]
+    }
+  }
+
+  schedule = "cron(0 12 * * ? *)"  # daily at noon
+}</code></pre>
+
+        <h2>Document metadata for faceting</h2>
+
+        <p>Metadata is what separates a good search experience from a great one. For each data source, you can define custom attributes (like department, document type, or last-modified-by) that users can filter on in the search UI.</p>
+
+        <p>Metadata is supplied either via a companion JSON file (for S3) or extracted from document properties (for SharePoint, Salesforce, etc.). Once indexed, these fields appear as facets in the search results API response.</p>
+
+        <h2>FAQ ingestion</h2>
+
+        <p>FAQs are a powerful feature that lets you pre-populate answers to common questions. Upload a CSV or JSON file containing question/answer pairs, and Kendra will surface these as direct answers at the top of results when a user's query closely matches.</p>
+
+        <pre><code># FAQ CSV format
+_question,_answer
+"How do I reset my password?","Visit the IT portal at https://it.company.com/reset"
+"What is the vacation policy?","Employees accrue 15 days per year. See HR handbook section 4.2."</code></pre>
+
+        <h2>Query tuning</h2>
+
+        <p>After ingestion, the tuning loop is straightforward: run sample queries against real data, review relevance feedback in the console, and adjust field weightings or blocklists as needed. Kendra also supports custom document relevance tuning at the query level if you need to boost specific sources dynamically.</p>
+
+        <h2>Cost considerations</h2>
+
+        <p>Kendra is not cheap. Enterprise edition runs ~$1,000/month for the index plus query charges. For most production use cases, it's worth it — but do your volume math before committing. The Developer edition (~$810/month) is a reasonable proxy for testing cost structure before upgrading.</p>
+
+        <h2>Wrapping up</h2>
+
+        <p>Kendra is genuinely impressive for enterprise search at scale. The connectors reduce integration work substantially, and the ML relevance is meaningfully better than Elasticsearch out of the box. The main watch-outs are cost and the fact that the native UI is minimal — you'll need to build your own search interface on top of the API for anything beyond a demo.</p>
+
+        <p>Next post in this series: hooking Kendra up to a React frontend using the Query API and building a clean search result renderer.</p>
+
+      </div>
+
+      <!-- Post footer nav -->
+      <div style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border); display:flex; justify-content:space-between; font-size:0.75rem;">
+        <a href="../blog/index.html" style="color:var(--text-dim);">← All posts</a>
+        <a href="aws-connect-reporting.html" style="color:var(--green);">AWS Connect: Reporting →</a>
+      </div>
+
+    </article>
+  </div>
+</div>
+
+<footer>
+  <div class="footer">
+    <span class="footer-logo">sole<span class="accent">.</span>techie</span>
+    <span class="footer-copy">ETL · Big Data · Cloud</span>
+    <span>© 2025</span>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

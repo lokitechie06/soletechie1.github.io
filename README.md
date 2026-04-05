@@ -1,0 +1,142 @@
+# SoleTechie — GitHub Pages Site
+
+Dark terminal aesthetic blog & portfolio for data engineering / cloud content.
+
+---
+
+## 🚀 Deploy to GitHub Pages in 5 steps
+
+### Step 1 — Create the repo
+1. Go to [github.com/new](https://github.com/new)
+2. Name it **exactly**: `YOUR-USERNAME.github.io`
+   - Example: if your GitHub username is `soletechie1`, name it `soletechie1.github.io`
+3. Set to **Public**, leave everything else default
+4. Click **Create repository**
+
+### Step 2 — Upload these files
+Option A — via GitHub UI (easiest):
+1. Open your new repo on GitHub
+2. Click **Add file → Upload files**
+3. Drag the entire contents of this folder (not the folder itself, the files inside it)
+4. Commit directly to `main`
+
+Option B — via Git CLI:
+```bash
+cd soletechie-site
+git init
+git add .
+git commit -m "initial site"
+git branch -M main
+git remote add origin https://github.com/YOUR-USERNAME/YOUR-USERNAME.github.io.git
+git push -u origin main
+```
+
+### Step 3 — Enable GitHub Pages
+1. In your repo, go to **Settings → Pages**
+2. Under **Source**, select **Deploy from a branch**
+3. Branch: `main`, folder: `/ (root)`
+4. Click **Save**
+
+### Step 4 — Wait ~2 minutes
+GitHub will build and deploy. Your site will be live at:
+```
+https://YOUR-USERNAME.github.io
+```
+
+### Step 5 — (Optional) Connect your custom domain
+If you own `soletechie.com`:
+1. In **Settings → Pages → Custom domain**, enter `soletechie.com`
+2. At your domain registrar (Squarespace/Google Domains/etc), add these DNS records:
+   ```
+   A     @   185.199.108.153
+   A     @   185.199.109.153
+   A     @   185.199.110.153
+   A     @   185.199.111.153
+   CNAME www YOUR-USERNAME.github.io
+   ```
+3. Check **Enforce HTTPS** once DNS propagates (~24h)
+
+---
+
+## 📁 File structure
+
+```
+soletechie-site/
+├── index.html              ← Homepage (all 4 sections)
+├── css/
+│   └── main.css            ← Full design system
+├── js/
+│   └── main.js             ← Scroll reveal, filters, copy buttons
+├── blog/
+│   └── index.html          ← All posts with tag filter
+└── posts/
+    ├── _template.html      ← Copy this for every new post
+    ├── amazon-kendra-deep-dive.html
+    ├── aws-connect-reporting.html  ← (stub — fill in content)
+    ├── terraform-lifecycle.html    ← (stub — fill in content)
+    └── ...
+```
+
+---
+
+## ✍️ Writing a new post
+
+1. Copy `posts/_template.html` → `posts/your-post-slug.html`
+2. Update: title, description, date, tags, content
+3. Add a card to `index.html` (in the posts-grid section)
+4. Add a row to `blog/index.html` (in the all-posts section)
+5. Commit and push → auto-deploys in ~30 seconds
+
+**Tag classes available:**
+| Class | Color | Use for |
+|-------|-------|---------|
+| `tag-aws` | orange | AWS services |
+| `tag-cloud` | cyan | General cloud |
+| `tag-iac` | purple | Terraform, CDK, CloudFormation |
+| `tag-data` | green | Data engineering, ETL |
+| `tag-devops` | red | CI/CD, GitLab, Jenkins |
+| `tag-tool` | yellow | VS Code, CLIs, utilities |
+
+---
+
+## 🛠️ Customization checklist
+
+- [ ] Replace `🧑‍💻` in About section with a real photo using `<img>` tag
+- [ ] Update your real name in About → `about-name`
+- [ ] Update LinkedIn URL in About links
+- [ ] Update certifications to match your actual certs (names, years, exam codes)
+- [ ] Update skill bar percentages to honest values
+- [ ] Replace patent/project descriptions with your real work
+- [ ] Update `nav-badge` text if "actively posting" doesn't fit your cadence
+- [ ] Add Google Analytics or Plausible if you want traffic stats
+
+---
+
+## 🎨 Design tokens (css/main.css)
+
+Key CSS variables you might want to tweak:
+
+```css
+--green:  #00ff88;   /* primary accent */
+--cyan:   #00d4ff;   /* secondary accent */
+--bg:     #080b0f;   /* page background */
+--bg2:    #0d1117;   /* card background */
+```
+
+To change the accent color from green to another color, do a find-replace on `#00ff88` and `rgba(0,255,136` in `main.css`.
+
+---
+
+## 📝 Adding Blogger post content
+
+To migrate your existing Blogger posts:
+1. Open each Blogger post, copy the text
+2. Paste into a new `posts/slug.html` based on `_template.html`
+3. Format with `<h2>`, `<p>`, `<code>`, `<pre>` tags
+4. Add code snippets inside `<pre><code>...</code></pre>` for syntax styling
+
+The copy-to-clipboard button on code blocks is added automatically by `main.js`.
+
+---
+
+Built by SoleTechie · soletechie.com
